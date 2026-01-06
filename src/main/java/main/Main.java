@@ -1,13 +1,16 @@
 package main.java.main;
 
-import main.java.service.Conexao;
 import java.sql.Connection;
+
+import main.java.util.Conexao;
+import main.java.view.MenuProduto;
 
 
 public class Main {
     public static void main(String[] args) {
-        Conexao.conectar();
-        Connection conn = Conexao.getConnection();
+        
+        MenuProduto menu = new MenuProduto();
+        menu.menu();
 
-        }
     }
+}

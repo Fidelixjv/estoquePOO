@@ -1,6 +1,8 @@
 package main.java.service;
 import main.java.dao.ProdutoDAO;
 import main.java.model.Produto;
+
+import java.sql.SQLException;
 import java.util.List;
 public class ProdutoService {
 
@@ -85,14 +87,35 @@ public class ProdutoService {
     // ===============================
     // INATIVAR PRODUTO
     // ===============================
-    public void inativar(int id) {
+public void inativar(int id) {
 
-        if (id <= 0) {
-            throw new RuntimeException("ID inválido.");
+    if (id <= 0) {
+        System.out.println("ID inválido.");
+        return;
+    }
+
+    try {
+        // Valida existência
+        if (!produtoDAO.inativar(id)) {
+            System.out.println("Produto não encontrado.");
+            return; 
         }
 
-        produtoDAO.inativar(id);
+        boolean sucesso = produtoDAO.inativar(id);
+
+        if (sucesso) {
+            System.out.println("Produto inativado com sucesso!");
+        } else {
+            System.out.println("Produto já estava inativo.");
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Erro ao inativar produto:");
+        System.out.println(e.getMessage());
     }
+}
+
+
 
     // ===============================
     // VERIFICAR ESTOQUE BAIXO

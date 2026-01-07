@@ -2,6 +2,7 @@ package main.java.view;
 import main.java.model.Produto;
 import main.java.service.ProdutoService;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 public class MenuProduto {
@@ -14,7 +15,7 @@ public class MenuProduto {
         sc = new Scanner(System.in);
     }
 
-    public void menu() {
+    public void menu() throws SQLException {
 
         int opcao;
 
@@ -37,6 +38,12 @@ switch (opcao) {
     case 2:
         listarProdutos();
         break;
+    case 3:
+        atualizar();
+        break;
+    case 4:
+        inativar();
+        break;
     case 0:
         System.out.println("Saindo...");
         break;
@@ -49,8 +56,30 @@ switch (opcao) {
     }
 
     private void listarProdutos() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'listarProdutos'");
+  List<Produto> produtos = produtoService.listar();
+
+    if (produtos.isEmpty()) {
+        System.out.println("Nenhum produto cadastrado.");
+        return;
+    }
+
+    System.out.println("\n=== LISTA DE PRODUTOS ===");
+
+    for (Produto p : produtos) {
+        System.out.println("----------------------------");
+        System.out.println("ID: " + p.getId());
+        System.out.println("Nome: " + p.getNome());
+        System.out.println("Código: " + p.getCodigo());
+        System.out.println("Categoria: " + p.getCategoria());
+        System.out.println("Preço custo: " + p.getPrecoCusto());
+        System.out.println("Preço venda: " + p.getPrecoVenda());
+        System.out.println("Quantidade: " + p.getQuantidade());
+        System.out.println("Estoque mínimo: " + p.getEstoqueMinimo());
+        System.out.println("Fornecedor ID: " + p.getFornecedorId());
+        System.out.println("Ativo: " + (p.isAtivo() ? "Sim" : "Não"));
+    }
+
+    System.out.println("----------------------------");
     }
 
     // ===============================
@@ -156,13 +185,12 @@ switch (opcao) {
     // ===============================
     // INATIVAR
     // ===============================
-    private void inativar() {
+    private void inativar() throws SQLException {
 
         System.out.print("ID do produto: ");
         int id = sc.nextInt();
 
         produtoService.inativar(id);
 
-        System.out.println("Produto inativado com sucesso!");
     }
 }

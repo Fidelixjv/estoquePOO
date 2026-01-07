@@ -140,19 +140,19 @@ public class ProdutoDAO {
     // ===============================
     // INATIVAR PRODUTO (DELETE LÓGICO)
     // ===============================
-    public void inativar(int id) {
+public boolean inativar(int id) throws SQLException {
 
-        String sql = "UPDATE produto SET ativo = false WHERE id = ?";
+    String sql = "UPDATE produto SET ativo = false WHERE id = ? AND ativo = true";
 
-        try (Connection conn = Conexao.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    PreparedStatement stmt = Conexao.getConnection().prepareStatement(sql);
+    stmt.setInt(1, id);
 
-            ps.setInt(1, id);
-            ps.executeUpdate();
+    int linhasAfetadas = stmt.executeUpdate();
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+    return linhasAfetadas > 0;
+}
+
+
+
 }
 

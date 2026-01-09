@@ -138,6 +138,41 @@ public class ProdutoDAO {
     }
 
     // ===============================
+    // BUSCAR POR CÓDIGO
+    // ===============================
+    public Produto buscarPorCodigo(String codigo) {
+
+        String sql = "SELECT * FROM produto WHERE codigo = ?";
+        Produto produto = null;
+
+        try (Connection conn = Conexao.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, codigo);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                produto = new Produto();
+                produto.setId(rs.getInt("id"));
+                produto.setNome(rs.getString("nome"));
+                produto.setCodigo(rs.getString("codigo"));
+                produto.setCategoria(rs.getString("categoria"));
+                produto.setPrecoCusto(rs.getDouble("preco_custo"));
+                produto.setPrecoVenda(rs.getDouble("preco_venda"));
+                produto.setQuantidade(rs.getInt("quantidade"));
+                produto.setEstoqueMinimo(rs.getInt("estoque_minimo"));
+                produto.setAtivo(rs.getBoolean("ativo"));
+                produto.setFornecedorId(rs.getInt("fornecedor_id"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return produto;
+    }
+
+    // ===============================
     // INATIVAR PRODUTO (DELETE LÓGICO)
     // ===============================
 public boolean inativar(int id) throws SQLException {

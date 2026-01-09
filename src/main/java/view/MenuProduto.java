@@ -179,7 +179,6 @@ switch (opcao) {
 
         produtoService.atualizar(p);
 
-        System.out.println("Produto atualizado com sucesso!");
     }
 
     // ===============================

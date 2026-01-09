@@ -76,12 +76,24 @@ public class ProdutoService {
             throw new RuntimeException("Produto inválido.");
         }
 
+        // Regra: Código obrigatório
+        if (produto.getCodigo() == null || produto.getCodigo().isEmpty()) {
+            throw new RuntimeException("Código do produto é obrigatório.");
+        }
+
+        // Regra: Código deve ser único
+        Produto existente = produtoDAO.buscarPorCodigo(produto.getCodigo());
+        if (existente != null && existente.getId() != produto.getId()) {
+            throw new RuntimeException("Código do produto já existe.");
+        }
+
         // Reaplica regras principais
         if (produto.getPrecoVenda() < produto.getPrecoCusto()) {
             throw new RuntimeException("Preço de venda não pode ser menor que o custo.");
         }
 
         produtoDAO.atualizar(produto);
+        System.out.println("Produto atualizado com sucesso!");
     }
 
     // ===============================
@@ -95,18 +107,25 @@ public void inativar(int id) {
     }
 
     try {
-        // Valida existência
-        if (!produtoDAO.inativar(id)) {
+        // Busca o produto para verificar existência e status
+        Produto produto = produtoDAO.buscarPorId(id);
+        if (produto == null) {
             System.out.println("Produto não encontrado.");
-            return; 
+            return;
         }
 
+        if (!produto.isAtivo()) {
+            System.out.println("Produto já estava inativo.");
+            return;
+        }
+
+        // Tenta inativar
         boolean sucesso = produtoDAO.inativar(id);
 
         if (sucesso) {
             System.out.println("Produto inativado com sucesso!");
         } else {
-            System.out.println("Produto já estava inativo.");
+            System.out.println("Erro ao inativar produto.");
         }
 
     } catch (SQLException e) {
@@ -114,6 +133,7 @@ public void inativar(int id) {
         System.out.println(e.getMessage());
     }
 }
+
 
 
 

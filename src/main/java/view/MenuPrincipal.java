@@ -24,7 +24,8 @@ public class MenuPrincipal {
 
             switch (opcao) {
                 case 1:
-                    System.out.println("Menu Fornecedor (em breve)");
+                    MenuFornecedor menuFornecedor = new MenuFornecedor();
+                    menuFornecedor.menu();
                     break;
 
                 case 2:

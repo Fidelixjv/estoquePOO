@@ -10,6 +10,8 @@ public class MenuProduto {
     private ProdutoService produtoService;
     private Scanner sc;
 
+    
+
     public MenuProduto() {
         produtoService = new ProdutoService();
         sc = new Scanner(System.in);

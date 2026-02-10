@@ -15,8 +15,9 @@ public class MenuAdmin {
             System.out.println("\n=== MENU ADMIN ===");
             System.out.println("1 - Produtos");
             System.out.println("2 - Fornecedores");
-            System.out.println("3 - Vendas");
-            System.out.println("4 - Usuários");
+            System.out.println("3 - Clientes");
+            System.out.println("4 - Vendas");
+            System.out.println("5 - Usuários");
             System.out.println("0 - Sair");
 
             op = sc.nextInt();
@@ -29,9 +30,12 @@ public class MenuAdmin {
                     new MenuFornecedor().menu();
                     break;
                 case 3:
-                    new MenuVenda().menu();
+                    new MenuCliente().menu();
                     break;
                 case 4:
+                    new MenuVenda().menu();
+                    break;
+                case 5:
                     new MenuUsuario().menu();
                     break;
             }

@@ -17,7 +17,7 @@ public class MenuPrincipal {
         if (usuario.getTipo().equals("ADMIN")) {
             new MenuAdmin().menu();
         } else if (usuario.getTipo().equals("OPERADOR")) {
-            new MenuVenda().menu();
+            new MenuVenda(usuario).menu();
         } else {
             System.out.println("Perfil não autorizado.");
         }

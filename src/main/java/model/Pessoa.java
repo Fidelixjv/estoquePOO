@@ -1,6 +1,6 @@
 package main.java.model;
 
-public class Pessoa {
+public abstract class Pessoa {
 
     private int id;
     private String nome;
@@ -27,5 +27,14 @@ public class Pessoa {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    // Cada subclasse deve fornecer seu documento de identificação (CPF/CNPJ)
+    public abstract String getDocumento();
+
+    // Utilitário opcional para exibir identificação completa
+    public String getIdentificacao() {
+        String doc = getDocumento();
+        return (nome != null ? nome : "") + (doc != null && !doc.isEmpty() ? " (" + doc + ")" : "");
     }
 }

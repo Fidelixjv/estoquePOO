@@ -1,31 +1,14 @@
 package main.java.model;
 
-public class Fornecedor {
+public class Fornecedor extends Pessoa {
 
-    private int id;
-    private String nome;
     private String cnpj;
     private String telefone;
     private String email;
     private boolean ativo = true;
 
-    public Fornecedor() {}
-
-    // getters e setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
+    public Fornecedor() {
+        super();
     }
 
     public String getCnpj() {

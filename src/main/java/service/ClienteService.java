@@ -111,7 +111,10 @@ public class ClienteService {
             throw new RuntimeException("Cliente não encontrado.");
         }
 
-        clienteDAO.deletar(id);
+        boolean excluido = clienteDAO.deletar(id);
+        if (!excluido) {
+            throw new RuntimeException("Não é possível deletar cliente: existem vendas relacionadas.");
+        }
         System.out.println("Cliente deletado com sucesso!");
     }
 }

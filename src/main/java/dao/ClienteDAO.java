@@ -145,19 +145,31 @@ public class ClienteDAO {
     // ===============================
     // DELETAR CLIENTE
     // ===============================
-    public void deletar(int id) {
+    // Retorna true se deletado com sucesso; false se existirem vendas relacionadas.
+    public boolean deletar(int id) {
 
-        String sql = "DELETE FROM cliente WHERE id = ?";
+        String checkSql = "SELECT COUNT(*) AS total FROM venda WHERE cliente_id = ?";
+        String deleteSql = "DELETE FROM cliente WHERE id = ?";
 
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement checkPs = conn.prepareStatement(checkSql)) {
 
-            ps.setInt(1, id);
-            ps.executeUpdate();
-            System.out.println("Cliente deletado com sucesso!");
+            checkPs.setInt(1, id);
+            try (ResultSet rs = checkPs.executeQuery()) {
+                if (rs.next() && rs.getInt("total") > 0) {
+                    return false; // existem vendas relacionadas
+                }
+            }
+
+            try (PreparedStatement deletePs = conn.prepareStatement(deleteSql)) {
+                deletePs.setInt(1, id);
+                deletePs.executeUpdate();
+                return true;
+            }
 
         } catch (SQLException e) {
             System.out.println("Erro ao deletar cliente: " + e.getMessage());
+            return false;
         }
     }
 }

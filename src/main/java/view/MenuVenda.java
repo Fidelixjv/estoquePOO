@@ -39,7 +39,8 @@ public class MenuVenda {
     }
 
     public void menu() {
-
+        // loop principal exibido ao usuário para navegar pelas funcionalidades
+        // relacionadas a vendas.
         int opcao;
 
         do {
@@ -52,20 +53,20 @@ public class MenuVenda {
             System.out.print("Escolha: ");
 
             opcao = sc.nextInt();
-            sc.nextLine(); // limpar buffer
+            sc.nextLine(); // limpar buffer do Scanner
 
             switch (opcao) {
                 case 1:
-                    novaVenda();
+                    novaVenda();          // processo completo de criação de venda
                     break;
                 case 2:
-                    listarVendas();
+                    listarVendas();       // mostra todas as vendas cadastradas
                     break;
                 case 3:
-                    verDetalhes();
+                    verDetalhes();        // solicita ID e exibe detalhes de uma venda
                     break;
                 case 4:
-                    relatorio();
+                    relatorio();          // imprime estatísticas de vendas
                     break;
                 case 0:
                     System.out.println("Voltando...");
@@ -82,21 +83,22 @@ public class MenuVenda {
     // ===============================
     private void novaVenda() {
 
+        // passo a passo para criar uma nova venda
         System.out.println("\n=== NOVA VENDA ===");
 
-        // Buscar ou criar cliente
+        // busca cliente existente ou cadastra novo/ anônimo
         Cliente cliente = buscarOuCriarCliente();
         if (cliente == null) {
             System.out.println("❌ Operação cancelada.");
             return;
         }
 
-        // Criar venda
+        // inicializa objeto Venda e associa cliente e usuário
         Venda venda = new Venda();
-        venda.setClienteId(cliente.getId());
+        venda.setClienteId(cliente.getId() == 0 ? null : cliente.getId());
         venda.setUsuarioId(usuarioLogado.getId());
 
-        // Adicionar produtos
+        // interage com o usuário para montar a lista de itens
         adicionarProdutos(venda);
 
         if (venda.getItens().isEmpty()) {
@@ -104,7 +106,7 @@ public class MenuVenda {
             return;
         }
 
-        // Processar venda
+        // apresenta resumo e pede confirmação final
         try {
             venda.calcularTotal();
 
@@ -125,6 +127,7 @@ public class MenuVenda {
             }
 
         } catch (RuntimeException e) {
+            // exibe mensagem detalhada de erro caso alguma validação falhe
             System.out.println("❌ Erro ao processar venda: " + e.getMessage());
         }
     }
@@ -132,6 +135,8 @@ public class MenuVenda {
     // ===============================
     // BUSCAR OU CRIAR CLIENTE
     // ===============================
+    // Exibe um pequeno submenu que permite ao usuário localizar um cliente pelo
+    // CPF, cadastrar um novo cliente (somente com CPF) ou prosseguir como anônimo.
     private Cliente buscarOuCriarCliente() {
 
         System.out.println("\n=== CLIENTE ===");
@@ -186,6 +191,8 @@ public class MenuVenda {
     // ===============================
     // ADICIONAR PRODUTOS À VENDA
     // ===============================
+    // Percorre um loop onde o usuário pode inserir novos produtos, ver os
+    // itens já adicionados ou finalizar a seleção.
     private void adicionarProdutos(Venda venda) {
 
         int opcao;
@@ -220,6 +227,8 @@ public class MenuVenda {
     // ===============================
     // ADICIONAR UM PRODUTO
     // ===============================
+    // Solicita o código do produto, verifica se está ativo e há estoque
+    // suficiente. Se válido, cria um ItemVenda e o acrescenta à venda em curso.
     private void adicionarProduto(Venda venda) {
 
         System.out.print("Digite o código do produto: ");
@@ -261,6 +270,8 @@ public class MenuVenda {
     // ===============================
     // LISTAR ITENS DA VENDA
     // ===============================
+    // Imprime no console todos os itens adicionados até o momento, junto com
+    // subtotais e total parcial.
     private void listarItensVenda(Venda venda) {
 
         if (venda.getItens().isEmpty()) {
@@ -292,6 +303,7 @@ public class MenuVenda {
     // ===============================
     // LISTAR VENDAS
     // ===============================
+    // Chama o serviço para obter todas as vendas e as formata para exibição.
     private void listarVendas() {
 
         List<Venda> vendas = vendaService.listar();
@@ -306,7 +318,21 @@ public class MenuVenda {
         for (Venda v : vendas) {
             System.out.println("----------------------------");
             System.out.println("ID: " + v.getId());
-            System.out.println("Cliente ID: " + v.getClienteId());
+
+            // mostrar nome do cliente (ou "CLIENTE ANÔNIMO" se não houver)
+            String nomeCliente;
+            if (v.getClienteId() != null && v.getClienteId() > 0) {
+                try {
+                    Cliente c = clienteService.buscarPorId(v.getClienteId());
+                    nomeCliente = (c != null ? c.getNome() : "CLIENTE ANÔNIMO");
+                } catch (RuntimeException e) {
+                    nomeCliente = "CLIENTE ANÔNIMO";
+                }
+            } else {
+                nomeCliente = "CLIENTE ANÔNIMO";
+            }
+            System.out.println("Cliente: " + nomeCliente);
+
             System.out.println("Data: " + v.getDataVenda());
             System.out.printf("Total: R$ %.2f%n", v.getValorTotal());
         }
@@ -317,6 +343,8 @@ public class MenuVenda {
     // ===============================
     // VER DETALHES DA VENDA
     // ===============================
+    // Solicita um ID ao usuário, busca a venda correspondente e mostra seus
+    // itens e informações completas.
     private void verDetalhes() {
 
         System.out.print("Digite o ID da venda: ");
@@ -362,6 +390,8 @@ public class MenuVenda {
     // ===============================
     // RELATÓRIO DE VENDAS
     // ===============================
+    // Gera estatísticas simples (total de vendas, receita, média, maior e
+    // menor venda) usando métodos do serviço de vendas.
     private void relatorio() {
 
         List<Venda> vendas = vendaService.listar();

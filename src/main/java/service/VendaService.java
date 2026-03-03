@@ -14,6 +14,7 @@ public class VendaService {
     private ProdutoDAO produtoDAO;
 
     public VendaService() {
+        // Inicializa os DAOs necessários para operar sobre vendas e produtos
         this.vendaDAO = new VendaDAO();
         this.produtoDAO = new ProdutoDAO();
     }
@@ -21,6 +22,12 @@ public class VendaService {
     // ===============================
     // PROCESSAR NOVA VENDA
     // ===============================
+    /*
+     * Esta é a rotina central responsável por receber um objeto Venda preenchido
+     * pela interface de usuário e executar todas as validações e regras de
+     * negócio antes de delegar a persistência ao DAO.
+     * Retorna o ID gerado ou lança RuntimeException em caso de falhas.
+     */
     public int procesarVenda(Venda venda) {
 
         // Regra 1: Usuário é obrigatório
@@ -33,12 +40,13 @@ public class VendaService {
             throw new RuntimeException("A venda deve conter pelo menos um produto.");
         }
 
-        // Regra 3: Validar cada item
+        // Regra 3: Validar cada item individualmente (produto existe, estoque,
+        // preço, etc.)
         for (ItemVenda item : venda.getItens()) {
             validarItem(item);
         }
 
-        // Regra 4: Calcular total
+        // Regra 4: Calcular total aproveitando método do modelo
         venda.calcularTotal();
 
         // Regra 5: Valor total deve ser maior que zero
@@ -46,15 +54,20 @@ public class VendaService {
             throw new RuntimeException("Valor total da venda inválido.");
         }
 
-        // Se tudo estiver OK → salva no banco
+        // Persistência: inserir a venda no banco de dados
         int vendaId = vendaDAO.inserir(venda);
 
-        // Salvar itens
+        // verificar se inserção foi bem‑sucedida (ID gerado positivo)
+        if (vendaId <= 0) {
+            throw new RuntimeException("Falha ao gravar a venda no banco de dados.");
+        }
+
+        // Após gravar a venda, salva cada item associado e ajusta estoque
         for (ItemVenda item : venda.getItens()) {
             item.setVendaId(vendaId);
             vendaDAO.inserirItem(item);
 
-            // Reduzir estoque do produto
+            // Reduzir estoque do produto correspondente
             atualizarEstoque(item.getProdutoId(), -item.getQuantidade());
         }
 
@@ -64,6 +77,11 @@ public class VendaService {
     // ===============================
     // VALIDAR ITEM DE VENDA
     // ===============================
+    /*
+     * Executa verificações específicas para cada item antes de permitir que ele
+     * faça parte da venda: produto existente, ativo, estoque suficiente e
+     * preço válido. Também calcula o subtotal do item.
+     */
     private void validarItem(ItemVenda item) {
 
         // Regra 1: Produto deve existir
@@ -102,6 +120,11 @@ public class VendaService {
     // ===============================
     // ATUALIZAR ESTOQUE
     // ===============================
+    /*
+     * Busca o produto pelo ID, ajusta a quantidade em estoque e salva a
+     * alteração via ProdutoDAO. O parâmetro 'quantidade' pode ser negativo
+     * para reduzir estoque ou positivo para repor.
+     */
     private void atualizarEstoque(int produtoId, int quantidade) {
 
         Produto produto = produtoDAO.buscarPorId(produtoId);

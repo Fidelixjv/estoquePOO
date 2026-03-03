@@ -6,7 +6,8 @@ create database estoquePOO;
 use estoquePOO;
 SELECT DATABASE();
 
-
+INSERT INTO usuario (nome, login, senha, tipo)
+VALUES ('Admin', 'admin', '123', 'ADMIN');
 -- ===============================
 -- USUÁRIOS
 -- ===============================

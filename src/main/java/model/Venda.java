@@ -7,7 +7,7 @@ import java.util.List;
 public class Venda {
 
     private int id;
-    private int clienteId;
+    private Integer clienteId;            // allow null for anonymous
     private int usuarioId;
     private LocalDateTime dataVenda;
     private double valorTotal;
@@ -18,7 +18,7 @@ public class Venda {
         this.dataVenda = LocalDateTime.now();
     }
 
-    public Venda(int id, int clienteId, int usuarioId, LocalDateTime dataVenda, double valorTotal) {
+    public Venda(int id, Integer clienteId, int usuarioId, LocalDateTime dataVenda, double valorTotal) {
         this.id = id;
         this.clienteId = clienteId;
         this.usuarioId = usuarioId;
@@ -36,11 +36,11 @@ public class Venda {
         this.id = id;
     }
 
-    public int getClienteId() {
+    public Integer getClienteId() {
         return clienteId;
     }
 
-    public void setClienteId(int clienteId) {
+    public void setClienteId(Integer clienteId) {
         this.clienteId = clienteId;
     }
 

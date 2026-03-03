@@ -14,8 +14,12 @@ public class VendaDAO {
     // ===============================
     // INSERIR VENDA
     // ===============================
+    // Recebe um objeto Venda, cria um registro na tabela "venda" e
+    // retorna o ID gerado pelo banco. Caso ocorra qualquer erro, retorna -1
+    // e imprime a mensagem de exceção.
     public int inserir(Venda venda) {
 
+        // SQL de inserção (notar que cliente_id pode ser null)
         String sql = "INSERT INTO venda (cliente_id, usuario_id, valor_total) " +
                 "VALUES (?, ?, ?)";
 
@@ -24,10 +28,18 @@ public class VendaDAO {
         try (Connection conn = Conexao.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setInt(1, venda.getClienteId());
+            // Prepara o valor do cliente. vendas anônimas armazenam null.
+            if (venda.getClienteId() != null && venda.getClienteId() > 0) {
+                ps.setInt(1, venda.getClienteId());
+            } else {
+                ps.setNull(1, java.sql.Types.INTEGER);
+            }
+            // Usuário e valor total são obrigatórios
             ps.setInt(2, venda.getUsuarioId());
             ps.setDouble(3, venda.getValorTotal());
 
+            // log de depuração para facilitar troubleshooting
+            System.out.println("[DEBUG] Inserindo venda - clienteId=" + venda.getClienteId());
             ps.executeUpdate();
 
             // Obter o ID gerado
@@ -38,6 +50,7 @@ public class VendaDAO {
             }
 
         } catch (SQLException e) {
+            // captura qualquer erro de SQL e imprime mensagem no console
             System.out.println("Erro ao inserir venda: " + e.getMessage());
         }
 
@@ -71,6 +84,9 @@ public class VendaDAO {
     // ===============================
     // LISTAR TODAS AS VENDAS
     // ===============================
+    // Retorna todas as vendas armazenadas, ordenadas da mais recente para a mais
+    // antiga. Cada linha do ResultSet é convertida em um objeto Venda com
+    // tratamento para campos nulos (especialmente cliente_id).
     public List<Venda> listar() {
 
         List<Venda> vendas = new ArrayList<>();
@@ -83,7 +99,13 @@ public class VendaDAO {
             while (rs.next()) {
                 Venda v = new Venda();
                 v.setId(rs.getInt("id"));
-                v.setClienteId(rs.getInt("cliente_id"));
+                // cliente_id pode ser NULL; verificamos usando rs.wasNull()
+                int cid = rs.getInt("cliente_id");
+                if (rs.wasNull()) {
+                    v.setClienteId(null);
+                } else {
+                    v.setClienteId(cid);
+                }
                 v.setUsuarioId(rs.getInt("usuario_id"));
                 v.setDataVenda(rs.getTimestamp("data_venda").toLocalDateTime());
                 v.setValorTotal(rs.getDouble("valor_total"));
@@ -101,6 +123,8 @@ public class VendaDAO {
     // ===============================
     // BUSCAR VENDA POR ID
     // ===============================
+    // Carrega uma venda específica pelo seu identificador. Se encontrada, também
+    // popula a lista de itens associados usando buscarItensPorVenda.
     public Venda buscarPorId(int id) {
 
         String sql = "SELECT * FROM venda WHERE id = ?";
@@ -115,7 +139,12 @@ public class VendaDAO {
             if (rs.next()) {
                 venda = new Venda();
                 venda.setId(rs.getInt("id"));
-                venda.setClienteId(rs.getInt("cliente_id"));
+                int cid2 = rs.getInt("cliente_id");
+                if (rs.wasNull()) {
+                    venda.setClienteId(null);
+                } else {
+                    venda.setClienteId(cid2);
+                }
                 venda.setUsuarioId(rs.getInt("usuario_id"));
                 venda.setDataVenda(rs.getTimestamp("data_venda").toLocalDateTime());
                 venda.setValorTotal(rs.getDouble("valor_total"));
@@ -181,7 +210,12 @@ public class VendaDAO {
             while (rs.next()) {
                 Venda v = new Venda();
                 v.setId(rs.getInt("id"));
-                v.setClienteId(rs.getInt("cliente_id"));
+                int cid = rs.getInt("cliente_id");
+                if (rs.wasNull()) {
+                    v.setClienteId(null);
+                } else {
+                    v.setClienteId(cid);
+                }
                 v.setUsuarioId(rs.getInt("usuario_id"));
                 v.setDataVenda(rs.getTimestamp("data_venda").toLocalDateTime());
                 v.setValorTotal(rs.getDouble("valor_total"));
